@@ -1,4 +1,4 @@
-package com.rookies5.myspringbootlab.config;
+package com.rookies5.myspringbootlab.property; // 패키지 경로 수정
 
 import lombok.Getter;
 import lombok.Setter;

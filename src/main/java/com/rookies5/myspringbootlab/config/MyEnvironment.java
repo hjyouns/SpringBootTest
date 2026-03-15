@@ -1,4 +1,4 @@
-package com.rookies5.myspringbootlab.domain;
+package com.rookies5.myspringbootlab.config;
 
 import lombok.Builder;
 import lombok.Getter;
