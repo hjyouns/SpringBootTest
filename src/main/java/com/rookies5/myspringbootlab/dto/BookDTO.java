@@ -1,17 +1,17 @@
 package com.rookies5.myspringbootlab.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import com.rookies5.myspringbootlab.entity.BookEntity;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
 
 public class BookDTO {
 
-    // 1. 도서 생성 요청 DTO
-    @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-    public static class BookCreateRequest {
+    // 1. 등록/수정 요청 (Request)
+    @Data @NoArgsConstructor @AllArgsConstructor @Builder
+    public static class Request {
         @NotBlank(message = "제목은 필수입니다.")
         private String title;
 
@@ -19,31 +19,67 @@ public class BookDTO {
         private String author;
 
         @NotBlank(message = "ISBN은 필수입니다.")
+        @Pattern(regexp = "^[0-9-]*$", message = "ISBN 형식이 올바르지 않습니다.")
         private String isbn;
 
-        @Positive(message = "가격은 0보다 커야 합니다.")
+        @PositiveOrZero(message = "가격은 0 이상이어야 합니다.")
         private Integer price;
 
+        @Past(message = "출판일은 과거 날짜여야 합니다.")
         private LocalDate publishDate;
+
+        // 상세 정보 요청 DTO 포함
+        @Valid
+        private BookDetailDTO detailRequest;
     }
 
-    // 2. 도서 수정 요청 DTO (선택적 수정 가능)
-    @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-    public static class BookUpdateRequest {
-        private String title;
-        private String author;
-        private Integer price;
-        private LocalDate publishDate;
+    // 2. 상세 정보 요청/응답용 DTO
+    @Data @NoArgsConstructor @AllArgsConstructor @Builder
+    public static class BookDetailDTO {
+        private String description;
+        private String language;
+        private Integer pageCount;
+        private String publisher;
+        private String coverImageUrl;
+        private String edition;
     }
 
-    // 3. 도서 응답 DTO (클라이언트에게 보내는 데이터)
-    @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-    public static class BookResponse {
+    // 3. 전체 응답 DTO (Response)
+    @Data @NoArgsConstructor @AllArgsConstructor @Builder
+    public static class Response {
         private Long id;
         private String title;
         private String author;
         private String isbn;
         private Integer price;
         private LocalDate publishDate;
+
+        // 상세 정보 응답 포함
+        private BookDetailDTO detail;
+
+        // Entity -> DTO 변환 메서드 (Service에서 사용)
+        public static Response fromEntity(BookEntity book) {
+            BookDetailDTO detailDTO = null;
+            if (book.getBookDetail() != null) {
+                detailDTO = BookDetailDTO.builder()
+                        .description(book.getBookDetail().getDescription())
+                        .language(book.getBookDetail().getLanguage())
+                        .pageCount(book.getBookDetail().getPageCount())
+                        .publisher(book.getBookDetail().getPublisher())
+                        .coverImageUrl(book.getBookDetail().getCoverImageUrl())
+                        .edition(book.getBookDetail().getEdition())
+                        .build();
+            }
+
+            return Response.builder()
+                    .id(book.getId())
+                    .title(book.getTitle())
+                    .author(book.getAuthor())
+                    .isbn(book.getIsbn())
+                    .price(book.getPrice())
+                    .publishDate(book.getPublishDate())
+                    .detail(detailDTO)
+                    .build();
+        }
     }
 }

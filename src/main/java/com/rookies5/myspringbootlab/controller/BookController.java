@@ -14,36 +14,25 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookController {
 
-    private final BookService bookService; // 모든 비즈니스 로직은 Service가 처리함
+    private final BookService bookService;
 
-    // [등록] DTO 사용
     @PostMapping
-    public ResponseEntity<BookDTO.BookResponse> create(@Valid @RequestBody BookDTO.BookCreateRequest request) {
+    public ResponseEntity<BookDTO.Response> create(@Valid @RequestBody BookDTO.Request request) {
         return ResponseEntity.ok(bookService.createBook(request));
     }
 
-    // [전체 조회] DTO 리스트 반환
     @GetMapping
-    public ResponseEntity<List<BookDTO.BookResponse>> getAll() {
+    public ResponseEntity<List<BookDTO.Response>> getAll() {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
 
-    // [상세 조회] ID 기반
-    @GetMapping("/{id}")
-    public ResponseEntity<BookDTO.BookResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(bookService.getBookById(id)); // Service에 추가 필요
+    @GetMapping("/isbn/{isbn}")
+    public ResponseEntity<BookDTO.Response> getByIsbn(@PathVariable String isbn) {
+        return ResponseEntity.ok(bookService.getBookByIsbn(isbn));
     }
 
-    // [수정] 실습 2-3의 핵심 (부분 업데이트)
-    @PutMapping("/{id}")
-    public ResponseEntity<BookDTO.BookResponse> update(@PathVariable Long id, @RequestBody BookDTO.BookUpdateRequest request) {
+    @PatchMapping("/{id}")
+    public ResponseEntity<BookDTO.Response> update(@PathVariable Long id, @RequestBody BookDTO.Request request) {
         return ResponseEntity.ok(bookService.updateBook(id, request));
-    }
-
-    // [삭제]
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        bookService.deleteBook(id); // Service에 추가 필요
-        return ResponseEntity.noContent().build();
     }
 }
